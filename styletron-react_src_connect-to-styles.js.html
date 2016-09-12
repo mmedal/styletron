@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>styletron-react/src/connect-to-styles.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>styletron-core</h3><ul><li><a href="StyletronCore.html">StyletronCore</a><ul class='methods'><li data-type='method'><a href="StyletronCore.html#injectDeclaration">injectDeclaration</a></li></ul></li></ul><h3>styletron-client</h3><ul><li><a href="StyletronClient.html">StyletronClient</a><ul class='methods'><li data-type='method'><a href="StyletronClient.html#injectDeclaration">injectDeclaration</a></li></ul></li></ul><h3>styletron-server</h3><ul><li><a href="StyletronServer.html">StyletronServer</a><ul class='methods'><li data-type='method'><a href="StyletronServer.html#getCss">getCss</a></li><li data-type='method'><a href="StyletronServer.html#injectDeclaration">injectDeclaration</a></li></ul></li></ul><h3>styletron-react</h3><ul><li><a href="StyletronProvider.html">StyletronProvider</a></li></ul><ul><li><a href="global.html#connectToStyles">connectToStyles</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">styletron-react/src/connect-to-styles.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const React = require('react');
+const utils = require('styletron-utils');
+
+module.exports = connectToStyles;
+
+/**
+ * Higher-order component for presentational components
+ * @packagename styletron-react
+ * @param  {function} styleFn Styler function
+ * @return {function}         Higher order component
+ * @example
+ * class Panel extends React.Component {
+ *   render() {
+ *     &lt;div className={this.styles.container}>
+ *       &lt;h1 className{this.styles.title}>Panel&lt;/h1>
+ *       {this.props.children}
+ *     &lt;/div>
+ *   }
+ * }
+ *
+ * const hoc = connectToStyles(props => {
+ *   return {
+ *     container: {
+ *       width: '640px',
+ *       background: props.color
+ *     },
+ *     title: {
+ *       fontSize: '40px'
+ *     }
+ *   };
+ * });
+ *
+ * module.exports = hoc(Panel);
+ */
+function connectToStyles(styleFn) {
+  return function hoc(Component) {
+    class Connected extends React.Component {
+      render() {
+        const styles = styleFn(this.props);
+        const classMap = Object.keys(styles).reduce((acc, key) => {
+          acc[key] = utils.injectStyle(this.context.styletron, styles[key])
+          return acc;
+        }, {});
+        return React.createElement(Component, Object.assign({
+          styles: classMap,
+          ref: c => {this.connectedElement = c}
+        }, this.props));
+      }
+    }
+    Connected.contextTypes = {styletron: React.PropTypes.object.isRequired};
+    Connected.displayName = `connectToStyles(${getDisplayName(Component)})`;
+    if (Component.defaultProps) {
+      Connected.defaultProps = Component.defaultProps;
+    } else if (typeof Component.getDefaultProps === 'function') {
+      Connected.defaultProps = Component.getDefaultProps();
+    }
+    return Connected;
+  };
+}
+
+function getDisplayName(WrappedComponent) {
+  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-83207746-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>styletron-core</h3><ul><li><a href="StyletronCore.html">StyletronCore</a><ul class='methods'><li data-type='method'><a href="StyletronCore.html#injectDeclaration">injectDeclaration</a></li></ul></li></ul><h3>styletron-client</h3><ul><li><a href="StyletronClient.html">StyletronClient</a><ul class='methods'><li data-type='method'><a href="StyletronClient.html#injectDeclaration">injectDeclaration</a></li></ul></li></ul><h3>styletron-server</h3><ul><li><a href="StyletronServer.html">StyletronServer</a><ul class='methods'><li data-type='method'><a href="StyletronServer.html#getCss">getCss</a></li><li data-type='method'><a href="StyletronServer.html#injectDeclaration">injectDeclaration</a></li></ul></li></ul><h3>styletron-react</h3><ul><li><a href="StyletronProvider.html">StyletronProvider</a></li></ul><ul><li><a href="global.html#connectToStyles">connectToStyles</a></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1><a href="https://github.com/rtsao/styletron"><img src="https://cdn.rawgit.com/rtsao/styletron/logo/logo.svg" alt="Styletron logo" title="Styletron"></a></h1><p><a href="https://travis-ci.org/rtsao/styletron"><img src="https://travis-ci.org/rtsao/styletron.svg?branch=master" alt="build status"></a>
+<a href="https://david-dm.org/rtsao/styletron"><img src="https://david-dm.org/rtsao/styletron.svg" alt="dependencies status"></a>
+<a href="https://www.npmjs.com/package/styletron"><img src="https://badge.fury.io/js/styletron.svg" alt="npm version"></a></p>
+<p>Universal, high-performance JavaScript styles.</p>
+<p><strong><a href="http://styletron.js.org">API documentation: http://styletron.js.org</a></strong></p>
+<h2>What is Styletron?</h2><p>Styletron is a universal CSS-in-JS engine built from the ground up for high-performance. Features include:</p>
+<h4>Advanced critical rendering path optimization of server-rendered pages</h4><ul>
+<li>Dynamic generation of inlineable critical stylesheets with minimum possible size and parse times<ul>
+<li>Automatic generation of maximally compressed &quot;atomic&quot; critical CSS via declaration-level deduplication</li>
+<li>Automatic declaration-level dead CSS elimination - only <em>actually used</em> declarations get included in output</li>
+</ul>
+</li>
+<li>Native media query support for full critical CSS without JavaScript</li>
+</ul>
+<h4>Efficient dynamic client-side styles</h4><ul>
+<li>Hyper-granular memoization to avoid making unnecessary modifications to stylesheet</li>
+<li>Fast cache hydration of server-rendered styles to prevent re-rendering of server-rendered styles</li>
+<li>Use of <code>CSSStyleSheet</code> rule injection ensuring <em>only</em> new styles get parsed</li>
+</ul>
+<h2>Basic usage</h2><p>The core Styletron module is totally unopinonated and works with or without any view-rendering library.</p>
+<pre class="prettyprint source lang-js"><code>import Styletron from 'styletron/server';
+
+const styletron = new Styletron();
+styletron.injectDeclaration({prop: 'background-color', val: 'red'}); // returns a class name
+// ➜ 'c0'
+styletron.injectDeclaration({prop: 'font-size', val: '12px'});
+// ➜ 'c1'
+styletron.getCss();
+// ➜ '.c0{background-color:red}.c1{font-size:12px}'</code></pre><p>Of course, this would be an inconvient API to use directly, so there's a <code>styletron-utils</code> package provides a more convient way to inject style objects in an interface that should be very familiar:</p>
+<pre class="prettyprint source lang-js"><code>import Styletron from 'styletron/server';
+import {injectStyle} from 'styletron-utils';
+
+const styletron = new Styletron();
+injectStyle(styletron, {
+  backgroundColor: 'red',
+  fontSize: '12px'
+});
+// ➜ 'c0 c1'
+styletron.getCss();
+// ➜ '.c0{background-color:red}.c1{font-size:12px}'</code></pre><p>Because the core Styletron API is very unopinionated, it can be integrated into virtually any app or even other CSS-in-JS solutions.</p>
+<h2>Getting started with React</h2><p><a href="https://github.com/rtsao/styletron/tree/master/packages/react-demo">Full isomorphic demo app</a></p>
+<p>There's also slightly more opinionated <code>styletron-react</code> package for React applications:</p>
+<pre class="prettyprint source lang-bash"><code>npm install styletron-react --save</code></pre><pre class="prettyprint source lang-js"><code>import React from 'react';
+import {connectToStyles} from 'styletron-react';
+
+const hoc = connectToStyles(props => {
+  return {
+    container: {
+      margin: '0px auto',
+      width: '640px',
+      background: props.color
+    },
+    title: {
+      fontSize: '24px'
+    }
+  }
+});
+
+class MyComponent extends React.Component {
+  render() {
+    const {styles} = this.props;
+    return (
+      &lt;div className={styles.container}>
+        &lt;h2 className={styles.title}>{this.props.title}&lt;/h2>
+      &lt;/div>
+    );
+  }
+}
+
+MyComponent.defaultProps = {
+  color: 'green'
+};
+
+export default hoc(MyComponent);</code></pre><pre class="prettyprint source lang-js"><code>import Styletron from 'styletron/client';
+import {StyletronProvider} from 'styletron-react';
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import App from './my-app';
+
+const styleElement = document.body.appendChild(document.createElement('style'));
+
+ReactDOM.render(
+  &lt;StyletronProvider styletron={new Styletron(styleElement)}/>
+    &lt;App/>
+  &lt;/StyletronProvider>,
+  document.getElementById('app')
+);</code></pre></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-83207746-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
